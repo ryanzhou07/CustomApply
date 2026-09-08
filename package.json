@@ -1,0 +1,27 @@
+{
+  "name": "customapply",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:dashboard": "npm run dev --workspace @customapply/dashboard",
+    "dev:backend": "services/backend/.venv/bin/uvicorn app.main:app --app-dir services/backend --reload --host 127.0.0.1 --port 3001",
+    "dev:extension": "npm run dev --workspace @customapply/extension",
+    "dev:ai": "services/ai/.venv/bin/uvicorn app.main:app --app-dir services/ai --reload --host 127.0.0.1 --port 8000",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "supabase": "^2.116.0",
+    "typescript": "^7.0.2"
+  }
+}

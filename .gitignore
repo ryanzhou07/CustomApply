@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.vite/
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.local
+*.db
+*.db-shm
+*.db-wal
+.pytest_cache/
+.ruff_cache/
+supabase/.branches/
+supabase/.temp/
+.DS_Store
