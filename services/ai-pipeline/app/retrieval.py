@@ -1,7 +1,11 @@
 from typing import Any
 
 from google import genai
+from google.genai import types
 from supabase import Client
+
+EMBEDDING_MODEL = "gemini-embedding-2"
+EMBEDDING_DIMENSIONS = 768
 
 
 def _embedding_values(response: Any) -> list[float]:
@@ -19,12 +23,22 @@ def _embedding_values(response: Any) -> list[float]:
 
 
 def retrieve_relevant_story(
-    question: str, client: genai.Client, supabase: Client
+    question: str,
+    client: genai.Client,
+    supabase: Client,
+    user_id: str | None = None,
 ) -> dict[str, Any] | None:
-    response = client.models.embed_content(model="text-embedding-004", contents=question)
+    response = client.models.embed_content(
+        model=EMBEDDING_MODEL,
+        contents=question,
+        config=types.EmbedContentConfig(output_dimensionality=EMBEDDING_DIMENSIONS),
+    )
     query_embedding = _embedding_values(response)
-    if len(query_embedding) != 768:
-        raise ValueError(f"Expected a 768-dimensional embedding, got {len(query_embedding)}")
+    if len(query_embedding) != EMBEDDING_DIMENSIONS:
+        raise ValueError(
+            f"Expected a {EMBEDDING_DIMENSIONS}-dimensional embedding, "
+            f"got {len(query_embedding)}"
+        )
 
     result = supabase.rpc(
         "match_stories",
@@ -32,6 +46,7 @@ def retrieve_relevant_story(
             "query_embedding": query_embedding,
             "match_threshold": 0.3,
             "match_count": 1,
+            "filter_user_id": user_id,
         },
     ).execute()
     rows = result.data or []
@@ -43,4 +58,3 @@ def retrieve_relevant_story(
         key: story.get(key)
         for key in ("id", "title", "situation", "task", "action", "result")
     }
-
